@@ -1317,6 +1317,65 @@ class Diamond(Cross):
         ) * self.cameras("rear").include
 
 
+class Grid(MovieLayout):
+    """Grid Movie Layout
+
+    [FRONT_CAMERA][REAR_CAMERA]
+    [LEFT_CAMERA][RIGHT_CAMERA]
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.scale = 1 / 2
+        self._clip_order = ["front", "rear", "left", "right"]
+
+    @property
+    def video_width(self):
+        # Width is 2 cameras side by side
+        return int(
+            max(
+                self.cameras("front").width + self.cameras("rear").width,
+                self.cameras("left").width + self.cameras("right").width
+            )
+        )
+
+    @property
+    def video_height(self):
+        # Height is 2 cameras stacked
+        perspective_adjustement = 3 / 2 if self.perspective else 1
+        return int(
+            self.cameras("front").height +
+            max(
+                perspective_adjustement * self.cameras("left").height,
+                perspective_adjustement * self.cameras("right").height
+            )
+        )
+
+    def _front_xpos(self):
+        return 0
+
+    def _front_ypos(self):
+        return 0
+
+    def _rear_xpos(self):
+        return self.cameras("front").width
+
+    def _rear_ypos(self):
+        return 0
+
+    def _left_xpos(self):
+        return 0
+
+    def _left_ypos(self):
+        return self.cameras("front").height
+
+    def _right_xpos(self):
+        return self.cameras("left").width
+
+    def _right_ypos(self):
+        return self.cameras("front").height
+
+
 class MyArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
         # Remove comments.
@@ -3237,7 +3296,7 @@ def main() -> int:
     layout_group.add_argument(
         "--layout",
         required=False,
-        choices=["WIDESCREEN", "FULLSCREEN", "PERSPECTIVE", "CROSS", "DIAMOND"],
+        choices=["WIDESCREEN", "FULLSCREEN", "PERSPECTIVE", "CROSS", "DIAMOND", "GRID"],
         default="FULLSCREEN",
         type=str.upper,
         help="R|Layout of the created video.\n"
@@ -3247,7 +3306,8 @@ def main() -> int:
         "    PERSPECTIVE: Similar to FULLSCREEN but then with side cameras in perspective.\n"
         "    CROSS: Front camera center top, side cameras underneath, and rear camera center bottom.\n"
         "    DIAMOND: Front camera center top, side cameras below front camera left and right of front, "
-        "and rear camera center bottom.\n",
+        "and rear camera center bottom.\n"
+        "    GRID: All four cameras in a 2x2 grid with Front and Rear on top, Left and Right on bottom.\n",
     )
     layout_group.add_argument(
         "--camera_position",
@@ -3932,6 +3992,8 @@ def main() -> int:
             layout_settings = Cross()
         elif args.layout == "DIAMOND":
             layout_settings = Diamond()
+        elif args.layout == "GRID":
+            layout_settings = Grid()
         else:
             layout_settings = FullScreen()
 
