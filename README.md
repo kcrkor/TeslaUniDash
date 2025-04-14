@@ -76,6 +76,41 @@ Install from pypi is done through:
 python3 -m pip install tesla_dashcam
 ```
 
+## Development Setup
+
+This project uses [uv](https://github.com/astral-sh/uv) for dependency management. To set up the development environment:
+
+1. Install uv:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+2. Create and activate a virtual environment:
+```bash
+uv venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+3. Install the package in development mode:
+```bash
+uv pip install -e .
+```
+
+For development dependencies:
+```bash
+uv pip install -e ".[dev]"
+```
+
+For build dependencies:
+```bash
+uv pip install -e ".[build]"
+```
+
+The project uses lock files to ensure reproducible builds:
+- `uv.lock`: Main dependencies
+- `uv-dev.lock`: Development dependencies
+- `uv-build.lock`: Build dependencies
+
 ## Usage
 
 ```bash
