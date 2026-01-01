@@ -1,4 +1,4 @@
-name: Test and Build
+name: CI/CD
 
 on:
   push:
@@ -7,40 +7,29 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
-
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.12"
 
     - name: Install uv
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-    - name: Create virtual environment
-      run: uv venv .venv
+      uses: astral-sh/setup-uv@v4
 
     - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        uv pip install -e ".[dev]"
+      run: uv pip install --system ruff
 
-    - name: Run tests
-      run: |
-        source .venv/bin/activate
-        python -m pytest
+    - name: Run ruff linter
+      run: ruff check .
+
+    - name: Run ruff formatter check
+      run: ruff format --check .
 
   build:
-    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,19 +44,16 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install uv
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-    - name: Create virtual environment
-      run: uv venv .venv
+      uses: astral-sh/setup-uv@v4
 
     - name: Install build dependencies
-      run: |
-        source .venv/bin/activate
-        uv pip install -e ".[build]"
+      run: uv pip install --system build hatchling
 
     - name: Build package
-      run: |
-        source .venv/bin/activate
-        python -m build 
+      run: python -m build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ matrix.python-version }}
+        path: dist/
