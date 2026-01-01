@@ -11,15 +11,15 @@ import os
 import sys
 from shutil import rmtree
 
-from setuptools import find_packages, setup, Command  # type: ignore
+from setuptools import Command, find_packages, setup  # type: ignore
 
 # Package meta-data.
 NAME = "tesla_dashcam"
-DESCRIPTION = "Python program to merge video files created by Tesla " "dashcam"
+DESCRIPTION = "Python program to merge video files created by Tesla dashcam"
 URL = "https://github.com/ehendrix23/tesla_dashcam"
 EMAIL = "hendrix_erik@hotmail.com"
 AUTHOR = "Erik Hendrix"
-REQUIRES_PYTHON = ">=3.8.6"
+REQUIRES_PYTHON = ">=3.13.0"
 VERSION = None
 
 # What packages are required for this module to be executed?
@@ -41,7 +41,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
-with io.open(os.path.join(HERE, "README.rst"), encoding="utf-8") as f:
+with io.open(os.path.join(HERE, "README.md"), encoding="utf-8") as f:
     LONG_DESC = "\n" + f.read()
 
 # Load the package's __version__.py module as a dictionary.
@@ -124,9 +124,7 @@ class TestUploadCommand(Command):
         os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
 
         self.status("Uploading the package to TestPyPi via Twine…")
-        os.system(
-            "twine upload --repository-url " "https://test.pypi.org/legacy/ dist/*"
-        )
+        os.system("twine upload --repository-url https://test.pypi.org/legacy/ dist/*")
 
         self.status("Pushing git tags…")
         os.system("git tag v{0}".format(ABOUT["__version__"]))
@@ -166,9 +164,7 @@ class TestUploadCommand(Command):
         os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
 
         self.status("Uploading the package to TestPyPi via Twine…")
-        os.system(
-            "twine upload --repository-url " "https://test.pypi.org/legacy/ dist/*"
-        )
+        os.system("twine upload --repository-url https://test.pypi.org/legacy/ dist/*")
 
         self.status("Pushing git tags…")
         os.system("git tag v{0}".format(ABOUT["__version__"]))
@@ -183,7 +179,7 @@ setup(
     version=ABOUT["__version__"],
     description=DESCRIPTION,
     long_description=LONG_DESC,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     author=AUTHOR,
     # author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
